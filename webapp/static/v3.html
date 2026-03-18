@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Aterley — Вариант 3: Журнал</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #fafafa;
+  --text: #1d1d1f;
+  --text-light: #86868b;
+  --text-bot: #2d5a3d;
+  --text-user: #6e6e73;
+  --accent: #2d5a3d;
+  --accent-hover: #1e4a2d;
+  --accent-soft: rgba(45,90,61,0.06);
+  --border: rgba(0,0,0,0.06);
+  --recording: #c0392b;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Container */
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  overflow: hidden;
+}
+
+.page.empty { justify-content: center; }
+.page.active { justify-content: flex-end; }
+
+/* Welcome */
+.welcome {
+  text-align: center;
+  animation: fadeIn 0.8s ease;
+  margin-bottom: 40px;
+}
+
+.welcome .line {
+  width: 40px;
+  height: 3px;
+  background: var(--accent);
+  margin: 0 auto 24px;
+  border-radius: 2px;
+}
+
+.welcome h1 {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  letter-spacing: -0.3px;
+}
+
+.welcome p {
+  font-size: 14px;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+/* Chat — journal style */
+.journal {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 0 12px;
+  display: none;
+  flex-direction: column;
+  -webkit-overflow-scrolling: touch;
+}
+
+.journal.visible { display: flex; }
+
+.journal .date-stamp {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 16px 0;
+}
+
+.entry {
+  margin-bottom: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.entry.bot .text {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-bot);
+}
+
+.entry.user .text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-user);
+  padding: 12px 16px;
+  background: var(--accent-soft);
+  border-radius: 12px;
+}
+
+.entry .voice-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  margin-top: 4px;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+.entry .voice-link:hover { opacity: 1; }
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  margin: 8px 0;
+}
+
+/* Typing */
+.typing-dots {
+  display: flex;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.3;
+  animation: typingPulse 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingPulse {
+  0%, 60%, 100% { opacity: 0.2; transform: scale(0.8); }
+  30% { opacity: 0.7; transform: scale(1); }
+}
+
+/* Input */
+.input-wrap {
+  padding: 12px 0 20px;
+  border-top: 1px solid var(--border);
+}
+
+.input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.input-row textarea {
+  flex: 1;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+  max-height: 120px;
+  padding: 8px 0;
+  background: transparent;
+  color: var(--text);
+}
+
+.input-row textarea::placeholder {
+  color: #c0c0c0;
+}
+
+.input-row button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+  color: #c0c0c0;
+  transition: all 0.2s;
+}
+
+.input-row button:hover {
+  color: var(--accent);
+}
+
+.input-row button.send-active {
+  background: var(--accent);
+  color: white;
+}
+
+.input-row button.recording {
+  color: var(--recording);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(192, 57, 43, 0); }
+}
+
+/* Assessment — inline style */
+.assessment-inline {
+  display: none;
+  margin: 16px 0;
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  animation: fadeIn 0.3s ease;
+}
+
+.assessment-inline.visible { display: block; }
+
+.assessment-inline h3 {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.assessment-inline .counter {
+  font-size: 11px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.assessment-inline p {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.score-row {
+  display: flex;
+  gap: 6px;
+}
+
+.score-row button {
+  flex: 1;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text);
+}
+
+.score-row button:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Results */
+.result-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0;
+  font-size: 13px;
+}
+
+.result-row .label { width: 130px; color: #888; }
+.result-row .bar { flex: 1; height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
+.result-row .bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+.result-row .val { width: 24px; text-align: right; font-weight: 600; }
+
+.bar-red { background: #e74c3c; }
+.bar-yellow { background: #f39c12; }
+.bar-green { background: #27ae60; }
+.bar-great { background: #2ecc71; }
+
+.btn-save {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-save:hover { background: var(--accent-hover); }
+</style>
+</head>
+<body>
+
+<div class="page empty" id="page">
+  <div class="welcome" id="welcome">
+    <div class="line"></div>
+    <h1>Aterley</h1>
+    <p>Пространство для разговора с вашим психологом.<br>Текст или голос — как удобнее.</p>
+  </div>
+
+  <div class="journal" id="journal"></div>
+
+  <div class="input-wrap">
+    <div class="input-row">
+      <button id="btnMic" title="Голосовое сообщение">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </button>
+      <textarea id="input" rows="1" placeholder="Напишите..."></textarea>
+      <button id="btnSend" title="Отправить">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const page = document.getElementById('page');
+const welcome = document.getElementById('welcome');
+const journal = document.getElementById('journal');
+const input = document.getElementById('input');
+const btnSend = document.getElementById('btnSend');
+const btnMic = document.getElementById('btnMic');
+
+let sessionId = null;
+let mediaRecorder = null;
+let isRecording = false;
+let hasMessages = false;
+let assessmentScores = {};
+let currentSphere = 0;
+let assessmentEl = null;
+
+const SPHERES = [
+  { key: 'family_origin', title: 'Родительская семья',
+    desc: 'Родители, бабушки, дедушки, братья и сёстры.\n\nНасколько эта сфера сейчас вас наполняет?\n1 — забирает ресурс, 10 — даёт больше, чем вкладываете.' },
+  { key: 'family_own', title: 'Собственная семья',
+    desc: 'Муж/жена, дети, любимый человек.\n\nНасколько эта сфера для вас ресурсна?\n1 — забирает, 10 — наполняет.' },
+  { key: 'life_fullness', title: 'Полнота жизни',
+    desc: 'Хобби, путешествия, друзья, новый опыт.\n\nНасколько жизнь ощущается наполненной?\n1 — плоская, 10 — объёмная и цветная.' },
+  { key: 'realization', title: 'Реализация',
+    desc: 'Как профессионал, лидер, человек.\n\nНасколько вы реализованы?\n1 — не реализован, 10 — в полной мере.' },
+  { key: 'integration', title: 'Интеграция',
+    desc: 'Всё, что происходит — это для вас и вашего счастья?\n1 — живёте для кого-то, 10 — всё для вас.' },
+];
+
+async function init() {
+  const res = await fetch('/api/session');
+  const data = await res.json();
+  sessionId = data.session_id;
+}
+
+function switchToChat() {
+  if (hasMessages) return;
+  hasMessages = true;
+  welcome.style.display = 'none';
+  journal.classList.add('visible');
+  page.classList.remove('empty');
+  page.classList.add('active');
+
+  // Date stamp
+  const stamp = document.createElement('div');
+  stamp.className = 'date-stamp';
+  stamp.textContent = new Date().toLocaleDateString('ru', {day: 'numeric', month: 'long', year: 'numeric'});
+  journal.appendChild(stamp);
+}
+
+function addMessage(text, sender, withVoice = false) {
+  switchToChat();
+  const entry = document.createElement('div');
+  entry.className = `entry ${sender}`;
+
+  let voiceLink = '';
+  if (withVoice && sender === 'bot') {
+    voiceLink = `<button class="voice-link" onclick="playVoice(this, '${encodeURIComponent(text)}')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      </svg>
+      прослушать
+    </button>`;
+  }
+
+  entry.innerHTML = `<div class="text">${text.replace(/\n/g, '<br>')}</div>${voiceLink}`;
+
+  // Add divider before bot messages (except first)
+  if (sender === 'bot' && journal.querySelectorAll('.entry').length > 0) {
+    const divider = document.createElement('div');
+    divider.className = 'divider';
+    journal.appendChild(divider);
+  }
+
+  const typing = journal.querySelector('.typing-wrapper');
+  if (typing) typing.remove();
+
+  journal.appendChild(entry);
+  journal.scrollTop = journal.scrollHeight;
+}
+
+function showTyping() {
+  switchToChat();
+  const div = document.createElement('div');
+  div.className = 'entry bot typing-wrapper';
+  div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  journal.appendChild(div);
+  journal.scrollTop = journal.scrollHeight;
+}
+
+async function playVoice(el, encodedText) {
+  const text = decodeURIComponent(encodedText);
+  el.textContent = 'воспроизведение...';
+  try {
+    const res = await fetch('/api/tts', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({session_id: sessionId, message: text}),
+    });
+    if (res.ok && res.headers.get('content-type')?.includes('audio')) {
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.play();
+      audio.onended = () => {
+        el.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> прослушать`;
+        URL.revokeObjectURL(url);
+      };
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function sendMessage(text) {
+  if (!text.trim()) return;
+  addMessage(text, 'user');
+  input.value = '';
+  input.style.height = 'auto';
+  btnSend.classList.remove('send-active');
+  showTyping();
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({session_id: sessionId, message: text}),
+    });
+    const data = await res.json();
+    addMessage(data.reply, 'bot', true);
+    if (data.trigger_assessment) setTimeout(() => startAssessment(), 1500);
+  } catch(e) {
+    addMessage('Извините, произошла ошибка. Попробуйте ещё раз.', 'bot');
+  }
+}
+
+// Voice
+btnMic.addEventListener('click', async () => {
+  if (isRecording) { stopRecording(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+    mediaRecorder = new MediaRecorder(stream, {mimeType: 'audio/webm;codecs=opus'});
+    const chunks = [];
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(chunks, {type: 'audio/webm'});
+      addMessage('Голосовое сообщение...', 'user');
+      showTyping();
+      const formData = new FormData();
+      formData.append('audio', blob, 'voice.webm');
+      try {
+        const transRes = await fetch('/api/transcribe', {method: 'POST', body: formData});
+        const transData = await transRes.json();
+        if (transData.text) {
+          const lastUser = journal.querySelectorAll('.entry.user');
+          const last = lastUser[lastUser.length - 1];
+          if (last) last.querySelector('.text').textContent = transData.text;
+          const chatRes = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_id: sessionId, message: transData.text}),
+          });
+          const chatData = await chatRes.json();
+          addMessage(chatData.reply, 'bot', true);
+          if (chatData.trigger_assessment) setTimeout(() => startAssessment(), 2000);
+        }
+      } catch(e) { addMessage('Не удалось распознать. Попробуйте ещё раз.', 'bot'); }
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    btnMic.classList.add('recording');
+  } catch(e) { alert('Не удалось получить доступ к микрофону'); }
+});
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+  isRecording = false;
+  btnMic.classList.remove('recording');
+}
+
+// Assessment — inline in journal
+function startAssessment() {
+  currentSphere = 0;
+  assessmentScores = {};
+  switchToChat();
+
+  assessmentEl = document.createElement('div');
+  assessmentEl.className = 'assessment-inline visible';
+  journal.appendChild(assessmentEl);
+  showSphere();
+  journal.scrollTop = journal.scrollHeight;
+}
+
+function showSphere() {
+  const s = SPHERES[currentSphere];
+  assessmentEl.innerHTML = `
+    <div class="counter">Сфера ${currentSphere + 1} из ${SPHERES.length}</div>
+    <h3>${s.title}</h3>
+    <p>${s.desc.replace(/\n/g, '<br>')}</p>
+    <div class="score-row">
+      ${[1,2,3,4,5,6,7,8,9,10].map(n =>
+        `<button onclick="selectScore(${n})">${n}</button>`
+      ).join('')}
+    </div>
+  `;
+  journal.scrollTop = journal.scrollHeight;
+}
+
+window.selectScore = function(n) {
+  assessmentScores[SPHERES[currentSphere].key] = n;
+  currentSphere++;
+  if (currentSphere < SPHERES.length) showSphere();
+  else showResults();
+};
+
+function showResults() {
+  const vals = Object.values(assessmentScores);
+  const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
+  const labels = {
+    family_origin: 'Родительская семья', family_own: 'Собственная семья',
+    life_fullness: 'Полнота жизни', realization: 'Реализация', integration: 'Интеграция',
+  };
+  let bars = '';
+  for (const [key, label] of Object.entries(labels)) {
+    const v = assessmentScores[key] || 0;
+    const c = v <= 3 ? 'bar-red' : v <= 5 ? 'bar-yellow' : v <= 7 ? 'bar-green' : 'bar-great';
+    bars += `<div class="result-row">
+      <span class="label">${label}</span>
+      <div class="bar"><div class="bar-fill ${c}" style="width:${v*10}%"></div></div>
+      <span class="val">${v}</span>
+    </div>`;
+  }
+  let zone = avg <= 3 ? 'Красная зона' : avg <= 5 ? 'Жёлтая зона' : avg <= 7 ? 'Зелёная зона' : 'Отличное состояние';
+  assessmentEl.innerHTML = `
+    <h3>Результаты</h3>
+    <p style="font-size:28px;font-weight:300;text-align:center;margin:8px 0">${avg.toFixed(1)} <span style="font-size:13px;color:var(--text-light)">/ 10</span></p>
+    <p style="text-align:center;color:var(--text-light);margin-bottom:12px;font-size:13px">${zone}</p>
+    ${bars}
+    <button class="btn-save" onclick="closeAssessment()">Сохранить</button>
+  `;
+  journal.scrollTop = journal.scrollHeight;
+}
+
+window.closeAssessment = async function() {
+  assessmentEl.style.display = 'none';
+  showTyping();
+  try {
+    const res = await fetch('/api/assessment_done', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({session_id: sessionId, scores: assessmentScores}),
+    });
+    const data = await res.json();
+    addMessage(data.reply, 'bot', true);
+  } catch(e) {
+    addMessage('Результаты сохранены. Если хотите обсудить — я здесь.', 'bot', true);
+  }
+};
+
+// Input
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  btnSend.classList.toggle('send-active', !!input.value.trim());
+});
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    if (input.value.trim()) sendMessage(input.value);
+  }
+});
+
+btnSend.addEventListener('click', () => {
+  if (input.value.trim()) sendMessage(input.value);
+});
+
+init();
+</script>
+</body>
+</html>

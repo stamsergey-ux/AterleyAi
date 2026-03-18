@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Aterley — ваш психолог</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #f5f0ea;
+  --card: #fffcf8;
+  --text: #3a3028;
+  --text-light: #9a8e82;
+  --text-muted: #c4b9ad;
+  --accent: #8b7355;
+  --accent-hover: #725f46;
+  --accent-soft: rgba(139,115,85,0.08);
+  --recording: #c0392b;
+  --warm-shadow: 0 2px 20px rgba(139,115,85,0.08);
+}
+
+body {
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.brand {
+  text-align: center;
+  padding: 20px 0 0;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-light);
+  font-weight: 400;
+}
+
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  overflow: hidden;
+}
+
+.container.empty { justify-content: center; }
+.container.active { justify-content: flex-end; }
+
+/* Welcome */
+.welcome {
+  text-align: center;
+  margin-bottom: 48px;
+  animation: fadeIn 0.8s ease;
+}
+
+.welcome .avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #b8a58a, #8b7355);
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: white;
+  box-shadow: 0 4px 24px rgba(139,115,85,0.2);
+}
+
+.welcome h1 { font-size: 26px; font-weight: 500; margin-bottom: 8px; font-style: italic; }
+.welcome p { font-size: 15px; color: var(--text-light); font-weight: 400; line-height: 1.6; }
+
+/* Chat */
+.chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 0 12px;
+  display: none;
+  flex-direction: column;
+  gap: 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chat.visible { display: flex; }
+
+.msg { animation: fadeIn 0.4s ease; line-height: 1.8; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg.bot {
+  font-size: 16px;
+  color: var(--text);
+  padding-left: 16px;
+  border-left: 3px solid var(--accent-soft);
+}
+
+.msg.bot .meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.msg.bot .meta .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.4;
+}
+
+.msg.bot .meta span {
+  font-size: 12px;
+  color: var(--text-light);
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.msg.user {
+  font-size: 14px;
+  color: var(--text-light);
+  text-align: right;
+  font-style: italic;
+}
+
+/* Voice bubble */
+.voice-bubble {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--accent-soft);
+  border-radius: 18px;
+  margin-top: 6px;
+  width: fit-content;
+  max-width: 260px;
+}
+
+.voice-bubble .play-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.voice-bubble .play-btn:hover { background: var(--accent-hover); }
+
+.voice-wave {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+}
+
+.voice-wave span {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  opacity: 0.3;
+  transition: opacity 0.2s;
+}
+
+.voice-bubble.playing .voice-wave span {
+  opacity: 0.8;
+  animation: wave 0.6s infinite ease-in-out;
+}
+
+.voice-bubble.loading .voice-wave span {
+  opacity: 0.2;
+  animation: wave 1.2s infinite ease-in-out;
+}
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+
+.voice-wave span:nth-child(1) { height: 10px; animation-delay: 0s; }
+.voice-wave span:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+.voice-wave span:nth-child(3) { height: 22px; animation-delay: 0.15s; }
+.voice-wave span:nth-child(4) { height: 14px; animation-delay: 0.2s; }
+.voice-wave span:nth-child(5) { height: 20px; animation-delay: 0.25s; }
+.voice-wave span:nth-child(6) { height: 12px; animation-delay: 0.3s; }
+.voice-wave span:nth-child(7) { height: 18px; animation-delay: 0.35s; }
+.voice-wave span:nth-child(8) { height: 8px; animation-delay: 0.4s; }
+.voice-wave span:nth-child(9) { height: 14px; animation-delay: 0.45s; }
+.voice-wave span:nth-child(10) { height: 10px; animation-delay: 0.5s; }
+
+/* Text toggle */
+.text-toggle {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-light);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 4px 0;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.text-toggle:hover { opacity: 1; }
+
+.text-content {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-light);
+  line-height: 1.7;
+  display: none;
+}
+
+.text-content.visible { display: block; }
+
+/* Typing */
+.typing-dots {
+  display: flex;
+  gap: 5px;
+  padding: 8px 16px;
+}
+
+.typing-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  animation: typingPulse 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingPulse {
+  0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+  30% { opacity: 1; transform: scale(1); }
+}
+
+/* Input */
+.input-wrap { padding: 12px 0 20px; }
+
+.input-box {
+  display: flex;
+  align-items: flex-end;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 10px 14px;
+  box-shadow: var(--warm-shadow);
+  border: 1px solid rgba(139,115,85,0.1);
+  transition: box-shadow 0.2s;
+}
+
+.input-box:focus-within { box-shadow: 0 4px 30px rgba(139,115,85,0.15); }
+
+.input-box textarea {
+  flex: 1;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 15px;
+  font-family: 'Lora', Georgia, serif;
+  line-height: 1.5;
+  max-height: 120px;
+  padding: 4px 0;
+  background: transparent;
+  color: var(--text);
+}
+
+.input-box textarea::placeholder { color: var(--text-muted); font-style: italic; }
+
+.input-box button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.input-box button:hover { color: var(--accent); }
+.input-box button.send-active { background: var(--accent); color: white; }
+.input-box button.recording { color: var(--recording); animation: pulse 1.5s infinite; }
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.3); }
+  50% { box-shadow: 0 0 0 10px rgba(192, 57, 43, 0); }
+}
+
+/* Assessment modal */
+.modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(58,48,40,0.4);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(6px);
+}
+
+.modal-bg.active { display: flex; }
+
+.modal {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 32px;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+  animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal h2 { font-size: 20px; font-weight: 500; font-style: italic; margin-bottom: 4px; }
+.modal .counter { font-size: 12px; color: var(--text-light); font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin-bottom: 16px; }
+.modal p { font-size: 15px; color: #666; line-height: 1.7; margin-bottom: 24px; }
+
+.score-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+
+.score-grid button {
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid rgba(139,115,85,0.15);
+  background: white;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text);
+  font-family: 'Lora', Georgia, serif;
+}
+
+.score-grid button:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+.result-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.result-row .label { width: 130px; color: #888; }
+.result-row .bar { flex: 1; height: 8px; background: rgba(139,115,85,0.08); border-radius: 4px; overflow: hidden; }
+.result-row .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.result-row .val { width: 24px; text-align: right; font-weight: 600; color: var(--text); }
+
+.bar-red { background: #d35244; }
+.bar-yellow { background: #e8a838; }
+.bar-green { background: #5da855; }
+.bar-great { background: #4caf50; }
+
+.btn-save {
+  width: 100%;
+  margin-top: 24px;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Lora', Georgia, serif;
+  letter-spacing: 0.5px;
+}
+
+.btn-save:hover { background: var(--accent-hover); }
+</style>
+</head>
+<body>
+
+<div class="brand">Aterley</div>
+
+<div class="container empty" id="container">
+  <div class="welcome" id="welcome">
+    <div class="avatar-large">A</div>
+    <h1>Здравствуйте</h1>
+    <p>Ваш персональный психолог.<br>Расскажите, что вас беспокоит — текстом или голосом.</p>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="input-wrap">
+    <div class="input-box">
+      <button id="btnMic" title="Голосовое сообщение">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </button>
+      <textarea id="input" rows="1" placeholder="Что у вас на душе..."></textarea>
+      <button id="btnSend" title="Отправить">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="assessmentOverlay">
+  <div class="modal" id="assessmentCard"></div>
+</div>
+
+<script>
+const container = document.getElementById('container');
+const welcome = document.getElementById('welcome');
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const btnSend = document.getElementById('btnSend');
+const btnMic = document.getElementById('btnMic');
+const overlay = document.getElementById('assessmentOverlay');
+const aCard = document.getElementById('assessmentCard');
+
+let sessionId = null;
+let mediaRecorder = null;
+let isRecording = false;
+let hasMessages = false;
+let assessmentScores = {};
+let currentSphere = 0;
+
+// ── Audio control — prevent overlapping ──────────────────────────────────
+let currentAudio = null;
+
+function stopCurrentAudio() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    // Remove playing state from all bubbles
+    document.querySelectorAll('.voice-bubble.playing').forEach(b => b.classList.remove('playing'));
+    currentAudio = null;
+  }
+}
+
+const RESOURCE_SPHERES = [
+  { key: 'family_origin', title: 'Родительская семья',
+    desc: 'Родители, бабушки, дедушки, братья и сёстры.\n\nНасколько эта сфера сейчас вас наполняет?\n1 — забирает ресурс, 10 — даёт больше, чем вкладываете.' },
+  { key: 'family_own', title: 'Собственная семья',
+    desc: 'Муж/жена, дети, любимый человек.\n\nНасколько эта сфера для вас ресурсна?\n1 — забирает, 10 — наполняет.' },
+  { key: 'life_fullness', title: 'Полнота жизни',
+    desc: 'Хобби, путешествия, друзья, новый опыт.\n\nНасколько жизнь ощущается наполненной?\n1 — плоская, 10 — объёмная и цветная.' },
+  { key: 'realization', title: 'Реализация',
+    desc: 'Как профессионал, лидер, человек.\n\nНасколько вы реализованы?\n1 — не реализован, 10 — в полной мере.' },
+  { key: 'integration', title: 'Интеграция',
+    desc: 'Всё, что происходит — это для вас и вашего счастья?\n1 — живёте для кого-то, 10 — всё для вас.' },
+];
+
+const NEEDS_SPHERES = [
+  { key: 'mental', title: 'Ментальная сфера',
+    desc: 'Интеллект, знания, обучение, рефлексия, наставничество.\n\nНасколько выражена потребность?\n1 — всего достаточно, 10 — остро не хватает.' },
+  { key: 'social', title: 'Социальная сфера',
+    desc: 'Отношения, статус, карьера, влияние, принадлежность.\n\nНасколько выражена потребность?\n1 — всего достаточно, 10 — остро хочется.' },
+  { key: 'emotional', title: 'Эмоциональная сфера',
+    desc: 'Выражение и получение эмоций, наблюдение.\n\nНасколько выражена потребность?\n1 — всего достаточно, 10 — остро не хватает.' },
+  { key: 'spiritual', title: 'Духовная сфера',
+    desc: 'Ценности, смысл жизни, вера, гармония с собой.\n\nНасколько выражена потребность?\n1 — в ладу с собой, 10 — остро хотите переделать.' },
+  { key: 'physical', title: 'Физическая сфера',
+    desc: 'Безопасность, здоровье, спорт, комфорт.\n\nНасколько выражена потребность?\n1 — всего достаточно, 10 — хочется в полной мере.' },
+];
+
+// Full assessment state
+let fullAssessmentMode = false;
+let motivationFactors = [];
+let motivationDescriptions = {};
+let motivationImportance = {};
+let motivationSatisfaction = {};
+let motivationOpenness = 0;
+let motivationStep = '';  // 'factors', 'describe', 'importance', 'satisfaction', 'openness'
+let motivationCurrentIdx = 0;
+let resourceScores = {};
+let needsScores = {};
+// Backward compat
+const SPHERES = RESOURCE_SPHERES;
+
+async function init() {
+  const res = await fetch('/api/session');
+  const data = await res.json();
+  sessionId = data.session_id;
+}
+
+function switchToChat() {
+  if (hasMessages) return;
+  hasMessages = true;
+  welcome.style.display = 'none';
+  chat.classList.add('visible');
+  container.classList.remove('empty');
+  container.classList.add('active');
+}
+
+// ── Voice-first message display ──────────────────────────────────────────
+
+function addMessage(text, sender, withVoice = false) {
+  switchToChat();
+  const div = document.createElement('div');
+  div.className = `msg ${sender}`;
+
+  if (sender === 'bot') {
+    const msgId = 'vb-' + Date.now();
+
+    if (withVoice) {
+      // Voice-first: show voice bubble + hidden text
+      div.innerHTML = `
+        <div class="meta"><div class="dot"></div><span>Aterley</span></div>
+        <div class="voice-bubble loading" id="${msgId}">
+          <button class="play-btn" onclick="togglePlay('${msgId}')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+          </button>
+          <div class="voice-wave">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <button class="text-toggle" onclick="toggleText(this)">Показать текст</button>
+        <div class="text-content">${text.replace(/\n/g, '<br>')}</div>
+      `;
+    } else {
+      div.innerHTML = `
+        <div class="meta"><div class="dot"></div><span>Aterley</span></div>
+        ${text.replace(/\n/g, '<br>')}
+      `;
+    }
+  } else {
+    div.textContent = text;
+  }
+
+  const typing = chat.querySelector('.typing-wrapper');
+  if (typing) typing.remove();
+
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+
+  return withVoice ? div.querySelector('.voice-bubble')?.id : null;
+}
+
+function showTyping() {
+  switchToChat();
+  const div = document.createElement('div');
+  div.className = 'msg bot typing-wrapper';
+  div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// ── Text toggle ──────────────────────────────────────────────────────────
+
+window.toggleText = function(el) {
+  const content = el.nextElementSibling;
+  const visible = content.classList.toggle('visible');
+  el.textContent = visible ? 'Скрыть текст' : 'Показать текст';
+};
+
+// ── Voice playback ───────────────────────────────────────────────────────
+
+// Cache: bubbleId → audioUrl
+const audioCache = {};
+
+window.togglePlay = function(bubbleId) {
+  const bubble = document.getElementById(bubbleId);
+  if (!bubble) return;
+
+  // If this bubble is currently playing — pause
+  if (bubble.classList.contains('playing') && currentAudio) {
+    currentAudio.pause();
+    bubble.classList.remove('playing');
+    setBubbleIcon(bubble, 'play');
+    return;
+  }
+
+  // Stop any other playing audio
+  stopCurrentAudio();
+
+  const url = audioCache[bubbleId];
+  if (!url) return;
+
+  const audio = new Audio(url);
+  currentAudio = audio;
+  bubble.classList.add('playing');
+  setBubbleIcon(bubble, 'pause');
+
+  audio.play().catch(() => {
+    bubble.classList.remove('playing');
+    setBubbleIcon(bubble, 'play');
+  });
+
+  audio.onended = () => {
+    bubble.classList.remove('playing');
+    setBubbleIcon(bubble, 'play');
+    currentAudio = null;
+  };
+};
+
+function setBubbleIcon(bubble, state) {
+  const btn = bubble.querySelector('.play-btn');
+  if (!btn) return;
+  if (state === 'pause') {
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+  } else {
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  }
+}
+
+async function fetchAndPlayVoice(text, bubbleId) {
+  const bubble = document.getElementById(bubbleId);
+
+  try {
+    const res = await fetch('/api/tts', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({session_id: sessionId, message: text}),
+    });
+
+    if (res.ok && res.headers.get('content-type')?.includes('audio')) {
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      audioCache[bubbleId] = url;
+
+      if (bubble) {
+        bubble.classList.remove('loading');
+
+        // Stop any previously playing audio
+        stopCurrentAudio();
+
+        // Auto-play
+        const audio = new Audio(url);
+        currentAudio = audio;
+        bubble.classList.add('playing');
+        setBubbleIcon(bubble, 'pause');
+
+        audio.play().catch(() => {
+          bubble.classList.remove('playing');
+          setBubbleIcon(bubble, 'play');
+        });
+
+        audio.onended = () => {
+          bubble.classList.remove('playing');
+          setBubbleIcon(bubble, 'play');
+          currentAudio = null;
+        };
+      }
+    } else {
+      if (bubble) bubble.classList.remove('loading');
+    }
+  } catch(e) {
+    console.error('TTS error:', e);
+    if (bubble) bubble.classList.remove('loading');
+  }
+}
+
+// ── Send message ─────────────────────────────────────────────────────────
+
+async function sendMessage(text) {
+  if (!text.trim()) return;
+  addMessage(text, 'user');
+  input.value = '';
+  input.style.height = 'auto';
+  btnSend.classList.remove('send-active');
+  showTyping();
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({session_id: sessionId, message: text}),
+    });
+    const data = await res.json();
+    const bubbleId = addMessage(data.reply, 'bot', true);
+    if (bubbleId) fetchAndPlayVoice(data.reply, bubbleId);
+    if (data.trigger_assessment) setTimeout(() => startAssessment(), 1500);
+  } catch(e) {
+    addMessage('Извините, произошла ошибка. Попробуйте ещё раз.', 'bot');
+  }
+}
+
+// ── Voice recording ──────────────────────────────────────────────────────
+
+btnMic.addEventListener('click', async () => {
+  if (isRecording) { stopRecording(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+    mediaRecorder = new MediaRecorder(stream, {mimeType: 'audio/webm;codecs=opus'});
+    const chunks = [];
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(chunks, {type: 'audio/webm'});
+      addMessage('Голосовое сообщение...', 'user');
+      showTyping();
+      const formData = new FormData();
+      formData.append('audio', blob, 'voice.webm');
+      try {
+        const transRes = await fetch('/api/transcribe', {method: 'POST', body: formData});
+        const transData = await transRes.json();
+        if (transData.text) {
+          const lastUser = chat.querySelectorAll('.msg.user');
+          const last = lastUser[lastUser.length - 1];
+          if (last) last.textContent = transData.text;
+          const chatRes = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_id: sessionId, message: transData.text}),
+          });
+          const chatData = await chatRes.json();
+          const bubbleId = addMessage(chatData.reply, 'bot', true);
+          if (bubbleId) fetchAndPlayVoice(chatData.reply, bubbleId);
+          if (chatData.trigger_assessment) setTimeout(() => startAssessment(), 2000);
+        }
+      } catch(e) { addMessage('Не удалось распознать. Попробуйте ещё раз.', 'bot'); }
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    btnMic.classList.add('recording');
+  } catch(e) { alert('Не удалось получить доступ к микрофону'); }
+});
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+  isRecording = false;
+  btnMic.classList.remove('recording');
+}
+
+// ── Assessment — Full Flow ────────────────────────────────────────────────
+
+function startAssessment() {
+  fullAssessmentMode = true;
+  motivationFactors = [];
+  motivationDescriptions = {};
+  motivationImportance = {};
+  motivationSatisfaction = {};
+  motivationOpenness = 0;
+  resourceScores = {};
+  needsScores = {};
+  assessmentScores = {};
+  currentSphere = 0;
+  overlay.classList.add('active');
+  showMotivationIntro();
+}
+
+// ── Phase 1: Motivation Map ──────────────────────────────────────────────
+
+function showMotivationIntro() {
+  aCard.innerHTML = `
+    <div class="counter">Этап 1 / 3</div>
+    <h2>Карта мотивации</h2>
+    <p>Назовите факторы, которые важны для вас в работе.<br>
+    Например: деньги, команда, график, престиж, полномочия...</p>
+    <textarea id="factorInput" rows="4" style="width:100%;border:1px solid rgba(139,115,85,0.2);border-radius:12px;padding:12px;font-family:'Lora',Georgia,serif;font-size:14px;resize:none;margin-bottom:16px" placeholder="Перечислите через запятую..."></textarea>
+    <button class="btn-save" onclick="submitFactors()">Далее</button>
+  `;
+}
+
+window.submitFactors = function() {
+  const text = document.getElementById('factorInput').value;
+  const raw = text.split(/[,;\n]+/).map(s => s.trim()).filter(s => s.length > 1);
+  if (raw.length === 0) return;
+  motivationFactors = raw.map(f => f.charAt(0).toUpperCase() + f.slice(1));
+  if (!motivationFactors.some(f => f.toLowerCase().includes('деньг'))) {
+    motivationFactors.push('Деньги');
+  }
+  motivationCurrentIdx = 0;
+  showFactorDescription();
+};
+
+function showFactorDescription() {
+  const f = motivationFactors[motivationCurrentIdx];
+  const isMoney = f.toLowerCase().includes('деньг');
+  const total = motivationFactors.length;
+  aCard.innerHTML = `
+    <div class="counter">Описание фактора ${motivationCurrentIdx + 1} / ${total}</div>
+    <h2>${f}</h2>
+    <p>${isMoney
+      ? 'Довольны ли вы сейчас своим совокупным доходом?<br>Хотели бы увеличения? На сколько?<br>Что для вас деньги как фактор?'
+      : 'Что этот фактор значит для вас в идеальном мире?'
+    }</p>
+    <textarea id="descInput" rows="3" style="width:100%;border:1px solid rgba(139,115,85,0.2);border-radius:12px;padding:12px;font-family:'Lora',Georgia,serif;font-size:14px;resize:none;margin-bottom:16px" placeholder="Опишите коротко..."></textarea>
+    <button class="btn-save" onclick="submitDescription()">Далее</button>
+  `;
+};
+
+window.submitDescription = function() {
+  const desc = document.getElementById('descInput').value || '—';
+  motivationDescriptions[motivationFactors[motivationCurrentIdx]] = desc;
+  motivationCurrentIdx++;
+  if (motivationCurrentIdx < motivationFactors.length) {
+    showFactorDescription();
+  } else {
+    motivationCurrentIdx = 0;
+    showImportanceRating();
+  }
+};
+
+function showImportanceRating() {
+  const f = motivationFactors[motivationCurrentIdx];
+  aCard.innerHTML = `
+    <div class="counter">Важность: ${motivationCurrentIdx + 1} / ${motivationFactors.length}</div>
+    <h2>${f}</h2>
+    <p>Насколько важен этот фактор?<br>1 — практически не важен, 10 — важен в полной мере.</p>
+    <div class="score-grid">
+      ${[1,2,3,4,5,6,7,8,9,10].map(n =>
+        `<button onclick="selectImportance(${n})">${n}</button>`
+      ).join('')}
+    </div>
+  `;
+}
+
+window.selectImportance = function(n) {
+  motivationImportance[motivationFactors[motivationCurrentIdx]] = n;
+  motivationCurrentIdx++;
+  if (motivationCurrentIdx < motivationFactors.length) {
+    showImportanceRating();
+  } else {
+    motivationCurrentIdx = 0;
+    showSatisfactionRating();
+  }
+};
+
+function showSatisfactionRating() {
+  const f = motivationFactors[motivationCurrentIdx];
+  aCard.innerHTML = `
+    <div class="counter">Удовлетворённость: ${motivationCurrentIdx + 1} / ${motivationFactors.length}</div>
+    <h2>${f}</h2>
+    <p>Насколько вы довольны этим фактором сейчас?<br>1 — не доволен, 10 — доволен в полной мере.</p>
+    <div class="score-grid">
+      ${[1,2,3,4,5,6,7,8,9,10].map(n =>
+        `<button onclick="selectSatisfaction(${n})">${n}</button>`
+      ).join('')}
+    </div>
+  `;
+}
+
+window.selectSatisfaction = function(n) {
+  motivationSatisfaction[motivationFactors[motivationCurrentIdx]] = n;
+  motivationCurrentIdx++;
+  if (motivationCurrentIdx < motivationFactors.length) {
+    showSatisfactionRating();
+  } else {
+    showOpennessRating();
+  }
+};
+
+function showOpennessRating() {
+  aCard.innerHTML = `
+    <div class="counter">Завершение карты мотивации</div>
+    <h2>Откровенность</h2>
+    <p>Оцените свою откровенность в этом исследовании.<br>1 — был закрыт, 10 — был спонтанно откровенен.</p>
+    <div class="score-grid">
+      ${[1,2,3,4,5,6,7,8,9,10].map(n =>
+        `<button onclick="selectOpenness(${n})">${n}</button>`
+      ).join('')}
+    </div>
+  `;
+}
+
+window.selectOpenness = function(n) {
+  motivationOpenness = n;
+  // Show motivation summary, then move to resource
+  const satVals = Object.values(motivationSatisfaction);
+  const motAvg = satVals.reduce((a,b) => a+b, 0) / satVals.length;
+  let rows = '';
+  motivationFactors.forEach(f => {
+    const imp = motivationImportance[f] || 0;
+    const sat = motivationSatisfaction[f] || 0;
+    const gap = imp - sat;
+    const c = gap >= 4 ? 'bar-red' : gap >= 2 ? 'bar-yellow' : 'bar-green';
+    rows += `<div class="result-row">
+      <span class="label">${f}</span>
+      <div class="bar"><div class="bar-fill ${c}" style="width:${sat*10}%"></div></div>
+      <span class="val">${sat}</span>
+    </div>`;
+  });
+
+  aCard.innerHTML = `
+    <h2>Карта мотивации</h2>
+    <p style="font-size:28px;font-weight:500;text-align:center;margin:8px 0;font-style:italic">${motAvg.toFixed(1)} <span style="font-size:14px;color:var(--text-light)">/ 10</span></p>
+    <p style="text-align:center;color:var(--text-light);margin-bottom:12px;font-size:13px">Средняя удовлетворённость</p>
+    ${rows}
+    <button class="btn-save" onclick="startResourcePhase()">Далее — Ресурсное состояние →</button>
+  `;
+};
+
+// ── Phase 2: Resource State ──────────────────────────────────────────────
+
+window.startResourcePhase = function() {
+  currentSphere = 0;
+  resourceScores = {};
+  showResourceSphere();
+};
+
+function showResourceSphere() {
+  const s = RESOURCE_SPHERES[currentSphere];
+  aCard.innerHTML = `
+    <div class="counter">Этап 2 / 3 — Ресурс: ${currentSphere + 1} / ${RESOURCE_SPHERES.length}</div>
+    <h2>${s.title}</h2>
+    <p>${s.desc.replace(/\n/g, '<br>')}</p>
+    <div class="score-grid">
+      ${[1,2,3,4,5,6,7,8,9,10].map(n =>
+        `<button onclick="selectResourceScore(${n})">${n}</button>`
+      ).join('')}
+    </div>
+  `;
+}
+
+window.selectResourceScore = function(n) {
+  resourceScores[RESOURCE_SPHERES[currentSphere].key] = n;
+  currentSphere++;
+  if (currentSphere < RESOURCE_SPHERES.length) {
+    showResourceSphere();
+  } else {
+    // Show resource summary, then move to needs
+    const vals = Object.values(resourceScores);
+    const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
+    const labels = {family_origin:'Род. семья', family_own:'Своя семья', life_fullness:'Полнота жизни', realization:'Реализация', integration:'Интеграция'};
+    let bars = '';
+    for (const [key, label] of Object.entries(labels)) {
+      const v = resourceScores[key] || 0;
+      const c = v <= 3 ? 'bar-red' : v <= 5 ? 'bar-yellow' : v <= 7 ? 'bar-green' : 'bar-great';
+      bars += `<div class="result-row"><span class="label">${label}</span><div class="bar"><div class="bar-fill ${c}" style="width:${v*10}%"></div></div><span class="val">${v}</span></div>`;
+    }
+    aCard.innerHTML = `
+      <h2>Ресурсное состояние</h2>
+      <p style="font-size:28px;font-weight:500;text-align:center;margin:8px 0;font-style:italic">${avg.toFixed(1)} <span style="font-size:14px;color:var(--text-light)">/ 10</span></p>
+      ${bars}
+      <button class="btn-save" onclick="startNeedsPhase()">Далее — Потребностная сфера →</button>
+    `;
+    // Also save to assessmentScores for backward compat
+    assessmentScores = {...resourceScores};
+  }
+};
+
+// ── Phase 3: Needs Sphere ────────────────────────────────────────────────
+
+window.startNeedsPhase = function() {
+  currentSphere = 0;
+  needsScores = {};
+  showNeedsSphere();
+};
+
+function showNeedsSphere() {
+  const s = NEEDS_SPHERES[currentSphere];
+  aCard.innerHTML = `
+    <div class="counter">Этап 3 / 3 — Потребности: ${currentSphere + 1} / ${NEEDS_SPHERES.length}</div>
+    <h2>${s.title}</h2>
+    <p style="font-size:12px;color:var(--text-light);margin-bottom:8px;font-family:sans-serif">Обратная логика: 1 = закрыта, 10 = остро нужно</p>
+    <p>${s.desc.replace(/\n/g, '<br>')}</p>
+    <div class="score-grid">
+      ${[1,2,3,4,5,6,7,8,9,10].map(n =>
+        `<button onclick="selectNeedsScore(${n})">${n}</button>`
+      ).join('')}
+    </div>
+  `;
+}
+
+window.selectNeedsScore = function(n) {
+  needsScores[NEEDS_SPHERES[currentSphere].key] = n;
+  currentSphere++;
+  if (currentSphere < NEEDS_SPHERES.length) {
+    showNeedsSphere();
+  } else {
+    showFinalResults();
+  }
+};
+
+// ── Final comprehensive results ──────────────────────────────────────────
+
+function showFinalResults() {
+  const rVals = Object.values(resourceScores);
+  const nVals = Object.values(needsScores);
+  const sVals = Object.values(motivationSatisfaction);
+  const rAvg = rVals.reduce((a,b) => a+b, 0) / rVals.length;
+  const nAvg = nVals.reduce((a,b) => a+b, 0) / nVals.length;
+  const mAvg = sVals.reduce((a,b) => a+b, 0) / sVals.length;
+
+  const lifeEnergy = rAvg * nAvg;
+  const actionPotential = (rAvg * nAvg * mAvg) / 10;
+  const scu = (rAvg + nAvg + mAvg) / 3;
+
+  const ci = v => v <= 5.5 ? '🔴' : v <= 8.0 ? '🟡' : '🟢';
+  const leText = lifeEnergy <= 30 ? 'Лидерство даётся непросто' : lifeEnergy <= 64 ? 'Достаточный уровень для лидерства' : 'Избыточный! Человек-аккумулятор';
+  const apText = actionPotential <= 17 ? 'Сохранение области комфорта' : actionPotential <= 51 ? 'Расширение области комфорта' : 'Диффузное расширение изнутри';
+  const scuLevels = [[1,1.7,'Нулевой'],[1.8,3.4,'Зависимый'],[3.5,5.1,'Конформный'],[5.2,6.8,'Достижительный'],[6.9,8.4,'Постконвенциональный'],[8.5,10,'Интегральный']];
+  let scuName = '—';
+  for (const [lo,hi,nm] of scuLevels) { if (scu >= lo && scu <= hi) { scuName = nm; break; } }
+
+  aCard.innerHTML = `
+    <h2>Комплексная оценка</h2>
+    <div style="display:flex;justify-content:space-around;margin:16px 0;text-align:center">
+      <div><div style="font-size:24px;font-weight:500">${ci(mAvg)} ${mAvg.toFixed(1)}</div><div style="font-size:11px;color:var(--text-light)">Мотивация</div></div>
+      <div><div style="font-size:24px;font-weight:500">${ci(rAvg)} ${rAvg.toFixed(1)}</div><div style="font-size:11px;color:var(--text-light)">Ресурс</div></div>
+      <div><div style="font-size:24px;font-weight:500">${ci(nAvg)} ${nAvg.toFixed(1)}</div><div style="font-size:11px;color:var(--text-light)">Потребности</div></div>
+    </div>
+    <hr style="border:none;border-top:1px solid rgba(139,115,85,0.1);margin:16px 0">
+    <div style="font-size:14px;line-height:2">
+      <div>⚡ Жизненная энергия: <b>${lifeEnergy.toFixed(1)}%</b> <span style="color:var(--text-light);font-size:12px">${leText}</span></div>
+      <div>🎯 Потенциал действия: <b>${actionPotential.toFixed(1)}%</b> <span style="color:var(--text-light);font-size:12px">${apText}</span></div>
+      <div>🏛 СКУ: <b>${scu.toFixed(1)}/10</b> <span style="color:var(--text-light);font-size:12px">${scuName}</span></div>
+      <div>📝 Откровенность: <b>${motivationOpenness}/10</b></div>
+    </div>
+    <button class="btn-save" onclick="closeFullAssessment(${mAvg.toFixed(2)})">Сохранить и обсудить</button>
+  `;
+}
+
+window.closeFullAssessment = async function(motAvg) {
+  overlay.classList.remove('active');
+  showTyping();
+  try {
+    const res = await fetch('/api/full_assessment_done', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        session_id: sessionId,
+        motivation_avg: motAvg,
+        resource_scores: resourceScores,
+        needs_scores: needsScores,
+      }),
+    });
+    const data = await res.json();
+    const bubbleId = addMessage(data.reply, 'bot', true);
+    if (bubbleId) fetchAndPlayVoice(data.reply, bubbleId);
+  } catch(e) {
+    addMessage('Результаты сохранены. Если хотите обсудить — я здесь.', 'bot');
+  }
+};
+
+// Legacy closeAssessment for backward compat
+window.closeAssessment = window.closeFullAssessment;
+
+window.selectScore = function(n) {
+  // backward compat — redirect to resource score
+  window.selectResourceScore(n);
+};
+
+// ── Input handlers ───────────────────────────────────────────────────────
+
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  btnSend.classList.toggle('send-active', !!input.value.trim());
+});
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    if (input.value.trim()) sendMessage(input.value);
+  }
+});
+
+btnSend.addEventListener('click', () => {
+  if (input.value.trim()) sendMessage(input.value);
+});
+
+init();
+</script>
+</body>
+</html>
