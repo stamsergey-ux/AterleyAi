@@ -19,7 +19,13 @@ PSYCHOLOGIST_USERNAMES = [
     if u.strip()
 ]
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data.db")
+_raw_db_url = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data.db")
+# Railway gives postgresql:// — SQLAlchemy async needs postgresql+asyncpg://
+if _raw_db_url.startswith("postgresql://"):
+    _raw_db_url = _raw_db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+elif _raw_db_url.startswith("postgres://"):
+    _raw_db_url = _raw_db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+DATABASE_URL = _raw_db_url
 CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
