@@ -2,6 +2,6 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "python3 bot.py"
+startCommand = "python3 bot.py & uvicorn webapp.main:app --host 0.0.0.0 --port ${PORT:-8080}"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
