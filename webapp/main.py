@@ -292,24 +292,14 @@ async def new_session():
 
 @app.get("/api/debug")
 async def debug_check():
-    """Diagnostic endpoint to test API connectivity."""
-    import httpx
+    """Diagnostic endpoint — real API call test."""
     results = {}
-    # Test Anthropic
+    # Test Claude API with real call
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            r = await client.get("https://api.anthropic.com/v1/models",
-                                  headers={"x-api-key": "test", "anthropic-version": "2023-06-01"})
-            results["anthropic"] = f"reachable (status {r.status_code})"
+        reply = await chat_response("Скажи одно слово: работает")
+        results["claude_api"] = f"OK: {reply[:80]}"
     except Exception as e:
-        results["anthropic"] = f"FAILED: {e}"
-    # Test OpenAI
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            r = await client.get("https://api.openai.com/v1/models")
-            results["openai"] = f"reachable (status {r.status_code})"
-    except Exception as e:
-        results["openai"] = f"FAILED: {e}"
+        results["claude_api"] = f"FAILED: {type(e).__name__}: {e}"
     # Check env vars (just existence, not values)
     from config import CLAUDE_API_KEY, OPENAI_API_KEY, ELEVENLABS_API_KEY
     results["CLAUDE_API_KEY"] = f"set ({len(CLAUDE_API_KEY)} chars)" if CLAUDE_API_KEY else "NOT SET"
