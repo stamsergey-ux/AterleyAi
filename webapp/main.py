@@ -79,7 +79,7 @@ async def api_chat(req: ChatRequest):
 @app.post("/api/transcribe")
 async def api_transcribe(audio: UploadFile = File(...)):
     data = await audio.read()
-    text = await transcribe_voice(data)
+    text = await transcribe_voice(data, filename=audio.filename or "voice.webm")
     return {"text": text}
 
 

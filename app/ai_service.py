@@ -126,7 +126,8 @@ async def transcribe_voice(audio_bytes: bytes, filename: str = "voice.ogg") -> s
     if not openai_client:
         return ""
 
-    with tempfile.NamedTemporaryFile(suffix=".ogg", delete=False) as f:
+    suffix = Path(filename).suffix or ".ogg"
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
         f.write(audio_bytes)
         f.flush()
         temp_path = Path(f.name)
