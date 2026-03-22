@@ -6,7 +6,6 @@ import io
 import tempfile
 from pathlib import Path
 
-import httpx
 import anthropic
 import openai
 from elevenlabs import ElevenLabs
@@ -15,11 +14,11 @@ from config import CLAUDE_API_KEY, OPENAI_API_KEY, ELEVENLABS_API_KEY
 
 claude_client = anthropic.AsyncAnthropic(
     api_key=CLAUDE_API_KEY,
-    http_client=httpx.AsyncClient(timeout=60.0),
+    timeout=60.0,
 ) if CLAUDE_API_KEY else None
 openai_client = openai.AsyncOpenAI(
     api_key=OPENAI_API_KEY,
-    http_client=httpx.AsyncClient(timeout=60.0),
+    timeout=60.0,
 ) if OPENAI_API_KEY else None
 eleven_client = ElevenLabs(api_key=ELEVENLABS_API_KEY) if ELEVENLABS_API_KEY else None
 
