@@ -292,17 +292,25 @@ async def new_session():
 
 @app.get("/api/debug")
 async def debug_check():
-    """Diagnostic endpoint — real API call test."""
-    results = {}
-    # Test Claude API with real call
-    try:
-        reply = await chat_response("Скажи одно слово: работает")
-        results["claude_api"] = f"OK: {reply[:80]}"
-    except Exception as e:
-        results["claude_api"] = f"FAILED: {type(e).__name__}: {e}"
-    # Check env vars (just existence, not values)
+    """Diagnostic endpoint — direct API call test."""
+    import anthropic
     from config import CLAUDE_API_KEY, OPENAI_API_KEY, ELEVENLABS_API_KEY
-    results["CLAUDE_API_KEY"] = f"set ({len(CLAUDE_API_KEY)} chars)" if CLAUDE_API_KEY else "NOT SET"
-    results["OPENAI_API_KEY"] = f"set ({len(OPENAI_API_KEY)} chars)" if OPENAI_API_KEY else "NOT SET"
-    results["ELEVENLABS_API_KEY"] = f"set ({len(ELEVENLABS_API_KEY)} chars)" if ELEVENLABS_API_KEY else "NOT SET"
+    results = {}
+    results["CLAUDE_API_KEY_len"] = len(CLAUDE_API_KEY) if CLAUDE_API_KEY else 0
+    results["CLAUDE_API_KEY_start"] = CLAUDE_API_KEY[:20] + "..." if CLAUDE_API_KEY else "NOT SET"
+    results["OPENAI_API_KEY_len"] = len(OPENAI_API_KEY) if OPENAI_API_KEY else 0
+    results["ELEVENLABS_API_KEY_len"] = len(ELEVENLABS_API_KEY) if ELEVENLABS_API_KEY else 0
+    # Direct Claude API test
+    try:
+        client = anthropic.AsyncAnthropic(api_key=CLAUDE_API_KEY)
+        resp = await client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=10,
+            messages=[{"role": "user", "content": "Say OK"}],
+        )
+        results["claude_direct"] = f"SUCCESS: {resp.content[0].text}"
+    except Exception as e:
+        import traceback
+        results["claude_direct"] = f"FAILED: {type(e).__name__}: {e}"
+        results["claude_traceback"] = traceback.format_exc()[-500:]
     return results
