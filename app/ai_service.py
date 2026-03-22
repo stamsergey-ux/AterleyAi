@@ -12,8 +12,8 @@ from elevenlabs import ElevenLabs
 
 from config import CLAUDE_API_KEY, OPENAI_API_KEY, ELEVENLABS_API_KEY
 
-claude_client = anthropic.Anthropic(api_key=CLAUDE_API_KEY) if CLAUDE_API_KEY else None
-openai_client = openai.OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+claude_client = anthropic.AsyncAnthropic(api_key=CLAUDE_API_KEY) if CLAUDE_API_KEY else None
+openai_client = openai.AsyncOpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 eleven_client = ElevenLabs(api_key=ELEVENLABS_API_KEY) if ELEVENLABS_API_KEY else None
 
 # ElevenLabs voice ID — cloned doctor's voice
@@ -111,7 +111,7 @@ async def chat_response(user_message: str, history: list[dict] | None = None) ->
             f"Не откладывай — предложи сейчас.]"
         )
 
-    response = claude_client.messages.create(
+    response = await claude_client.messages.create(
         model="claude-sonnet-4-20250514",
         max_tokens=500,
         system=system,
@@ -134,7 +134,7 @@ async def transcribe_voice(audio_bytes: bytes, filename: str = "voice.ogg") -> s
 
     try:
         with open(temp_path, "rb") as audio_file:
-            transcript = openai_client.audio.transcriptions.create(
+            transcript = await openai_client.audio.transcriptions.create(
                 model="whisper-1",
                 file=audio_file,
                 language="ru",
@@ -169,7 +169,7 @@ async def text_to_speech(text: str) -> bytes:
     if not openai_client:
         return b""
 
-    response = openai_client.audio.speech.create(
+    response = await openai_client.audio.speech.create(
         model="tts-1",
         voice="onyx",
         input=text,
