@@ -405,7 +405,20 @@ body {
 <div class="brand">Aterley</div>
 
 <div class="container empty" id="container">
-  <div class="welcome" id="welcome">
+  <!-- Registration form -->
+  <div class="welcome" id="regForm">
+    <div class="avatar-large">A</div>
+    <h1>Здравствуйте</h1>
+    <p>Прежде чем мы начнём, представьтесь, пожалуйста.</p>
+    <div style="margin-top:20px;text-align:left;max-width:320px;margin-left:auto;margin-right:auto;">
+      <input id="regName" type="text" placeholder="Ваше имя *" style="width:100%;padding:12px 16px;border:1.5px solid var(--text-muted);border-radius:12px;font-family:inherit;font-size:15px;background:var(--card);color:var(--text);outline:none;margin-bottom:10px;">
+      <input id="regCompany" type="text" placeholder="Компания (необязательно)" style="width:100%;padding:12px 16px;border:1.5px solid var(--text-muted);border-radius:12px;font-family:inherit;font-size:15px;background:var(--card);color:var(--text);outline:none;margin-bottom:10px;">
+      <input id="regPosition" type="text" placeholder="Должность (необязательно)" style="width:100%;padding:12px 16px;border:1.5px solid var(--text-muted);border-radius:12px;font-family:inherit;font-size:15px;background:var(--card);color:var(--text);outline:none;margin-bottom:16px;">
+      <button onclick="doRegister()" style="width:100%;padding:13px;border:none;border-radius:12px;background:var(--accent);color:white;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;">Начать</button>
+    </div>
+  </div>
+
+  <div class="welcome" id="welcome" style="display:none;">
     <div class="avatar-large">A</div>
     <h1>Здравствуйте</h1>
     <p>Ваш персональный психолог.<br>Расскажите, что вас беспокоит — текстом или голосом.</p>
@@ -449,8 +462,28 @@ const overlay = document.getElementById('assessmentOverlay');
 const aCard = document.getElementById('assessmentCard');
 
 let sessionId = null;
+let memberId = null;
 let mediaRecorder = null;
 let isRecording = false;
+
+async function doRegister() {
+  const name = document.getElementById('regName').value.trim();
+  if (!name) { document.getElementById('regName').style.borderColor = 'var(--recording)'; return; }
+  const company = document.getElementById('regCompany').value.trim() || null;
+  const position = document.getElementById('regPosition').value.trim() || null;
+
+  const res = await fetch('/api/web/register', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name, company, position}),
+  });
+  const data = await res.json();
+  memberId = data.member_id;
+  sessionId = data.session_id;
+
+  document.getElementById('regForm').style.display = 'none';
+  document.getElementById('welcome').style.display = '';
+}
 let hasMessages = false;
 let assessmentScores = {};
 let currentSphere = 0;
@@ -509,9 +542,11 @@ let needsScores = {};
 const SPHERES = RESOURCE_SPHERES;
 
 async function init() {
-  const res = await fetch('/api/session');
-  const data = await res.json();
-  sessionId = data.session_id;
+  if (!sessionId) {
+    const res = await fetch('/api/session');
+    const data = await res.json();
+    sessionId = data.session_id;
+  }
 }
 
 function switchToChat() {
@@ -644,7 +679,7 @@ async function fetchAndPlayVoice(text, bubbleId) {
     const res = await fetch('/api/tts', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({session_id: sessionId, message: text}),
+      body: JSON.stringify({session_id: sessionId, message: text, member_id: memberId}),
     });
 
     if (res.ok && res.headers.get('content-type')?.includes('audio')) {
@@ -697,7 +732,7 @@ async function sendMessage(text) {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({session_id: sessionId, message: text}),
+      body: JSON.stringify({session_id: sessionId, message: text, member_id: memberId}),
     });
     const data = await res.json();
     const bubbleId = addMessage(data.reply, 'bot', true);
@@ -747,7 +782,7 @@ btnMic.addEventListener('click', async () => {
           const chatRes = await fetch('/api/chat', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({session_id: sessionId, message: transData.text}),
+            body: JSON.stringify({session_id: sessionId, message: transData.text, member_id: memberId}),
           });
           const chatData = await chatRes.json();
           const bubbleId = addMessage(chatData.reply, 'bot', true);
@@ -1063,6 +1098,7 @@ window.closeFullAssessment = async function(motAvg) {
         motivation_avg: motAvg,
         resource_scores: resourceScores,
         needs_scores: needsScores,
+        member_id: memberId,
       }),
     });
     const data = await res.json();

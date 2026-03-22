@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Aterley — Панель психолога</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #f5f0ea;
+  --card: #fffcf8;
+  --text: #3a3028;
+  --text-light: #9a8e82;
+  --text-muted: #c4b9ad;
+  --accent: #8b7355;
+  --accent-hover: #725f46;
+  --accent-soft: rgba(139,115,85,0.08);
+  --warm-shadow: 0 2px 20px rgba(139,115,85,0.08);
+  --green: #4a8c5c;
+  --yellow: #b8943e;
+  --red: #b94a3e;
+  --green-bg: rgba(74,140,92,0.10);
+  --yellow-bg: rgba(184,148,62,0.10);
+  --red-bg: rgba(185,74,62,0.10);
+}
+
+body {
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+}
+
+.brand {
+  text-align: center;
+  padding: 24px 0 8px;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-light);
+  font-weight: 400;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+/* Login */
+.login-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - 80px);
+  padding: 24px;
+}
+
+.login-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 48px 36px;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: var(--warm-shadow);
+  text-align: center;
+}
+
+.login-card .avatar-large {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg, #b8a58a, #8b7355);
+  margin: 0 auto 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: white;
+  box-shadow: 0 4px 24px rgba(139,115,85,0.2);
+}
+
+.login-card h2 { font-size: 20px; font-weight: 500; font-style: italic; margin-bottom: 6px; }
+.login-card p { font-size: 14px; color: var(--text-light); margin-bottom: 28px; line-height: 1.5; }
+
+.login-card input[type="password"] {
+  width: 100%; padding: 14px 18px;
+  border: 1.5px solid var(--text-muted); border-radius: 12px;
+  font-family: inherit; font-size: 15px;
+  background: var(--bg); color: var(--text); outline: none;
+  transition: border-color 0.2s; margin-bottom: 16px;
+}
+.login-card input[type="password"]:focus { border-color: var(--accent); }
+
+.login-card .error-msg { color: var(--red); font-size: 13px; margin-bottom: 12px; min-height: 18px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 32px; border: none; border-radius: 12px;
+  font-family: inherit; font-size: 15px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.btn-primary { background: var(--accent); color: white; width: 100%; }
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(139,115,85,0.25); }
+.btn-secondary { background: var(--accent-soft); color: var(--accent); padding: 9px 18px; font-size: 13px; }
+.btn-secondary:hover { background: rgba(139,115,85,0.15); }
+
+/* Dashboard */
+.dashboard { max-width: 800px; width: 100%; margin: 0 auto; padding: 0 20px 40px; }
+
+.dashboard-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+}
+.dashboard-header .stats { font-size: 14px; color: var(--text-light); }
+
+.btn-logout {
+  background: none; border: 1.5px solid var(--text-muted); color: var(--text-light);
+  padding: 8px 18px; border-radius: 10px; font-family: inherit; font-size: 13px;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-logout:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Patient cards */
+.patient-card {
+  background: var(--card); border-radius: 16px; box-shadow: var(--warm-shadow);
+  margin-bottom: 16px; overflow: hidden; transition: box-shadow 0.2s;
+}
+.patient-card:hover { box-shadow: 0 4px 28px rgba(139,115,85,0.14); }
+
+.patient-header {
+  padding: 20px 24px; cursor: pointer;
+  display: flex; align-items: center; gap: 16px; user-select: none;
+}
+
+.patient-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, #c8baa8, #a89478);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: white; font-weight: 500; flex-shrink: 0;
+}
+
+.patient-info { flex: 1; min-width: 0; }
+.patient-name { font-size: 17px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.patient-meta { font-size: 13px; color: var(--text-light); }
+
+.expand-icon { font-size: 18px; color: var(--text-muted); transition: transform 0.3s; flex-shrink: 0; }
+.patient-card.expanded .expand-icon { transform: rotate(180deg); }
+
+/* Metrics row */
+.metrics-row { display: flex; gap: 8px; padding: 0 24px 16px; flex-wrap: wrap; }
+
+.metric-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 500; white-space: nowrap;
+}
+.metric-badge.green { background: var(--green-bg); color: var(--green); }
+.metric-badge.yellow { background: var(--yellow-bg); color: var(--yellow); }
+.metric-badge.red { background: var(--red-bg); color: var(--red); }
+.metric-badge .val { font-weight: 600; }
+
+/* Expanded detail */
+.patient-detail { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.patient-card.expanded .patient-detail { max-height: 2000px; }
+
+.detail-inner { padding: 0 24px 24px; border-top: 1px solid rgba(139,115,85,0.08); }
+.detail-actions { display: flex; gap: 10px; padding: 16px 0; flex-wrap: wrap; }
+
+/* History table */
+.history-section h4 { font-size: 14px; font-weight: 500; color: var(--text-light); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+
+.history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.history-table th { text-align: left; padding: 8px 10px; font-weight: 500; color: var(--text-light); border-bottom: 1.5px solid rgba(139,115,85,0.12); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.history-table td { padding: 10px; border-bottom: 1px solid rgba(139,115,85,0.06); white-space: nowrap; }
+.history-table tr:last-child td { border-bottom: none; }
+.table-wrap { overflow-x: auto; margin: 0 -8px; padding: 0 8px; }
+
+.cell-green { color: var(--green); font-weight: 500; }
+.cell-yellow { color: var(--yellow); font-weight: 500; }
+.cell-red { color: var(--red); font-weight: 500; }
+
+.loading { text-align: center; padding: 60px 20px; color: var(--text-light); font-style: italic; }
+.spinner { display: inline-block; width: 28px; height: 28px; border: 2.5px solid var(--text-muted); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-light); font-style: italic; font-size: 15px; }
+
+.hidden { display: none !important; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.4s ease; }
+
+@media (max-width: 600px) {
+  .login-card { padding: 36px 24px; }
+  .patient-header { padding: 16px 18px; gap: 12px; }
+  .metrics-row { padding: 0 18px 12px; }
+  .detail-inner { padding: 0 18px 18px; }
+  .patient-name { font-size: 15px; }
+  .metric-badge { font-size: 11px; padding: 4px 8px; }
+  .dashboard { padding: 0 12px 32px; }
+}
+</style>
+</head>
+<body>
+
+<div class="brand">Aterley</div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card fade-in">
+    <div class="avatar-large">A</div>
+    <h2>Панель психолога</h2>
+    <p>Введите пароль для доступа к данным пациентов</p>
+    <div id="loginError" class="error-msg"></div>
+    <input type="password" id="passwordInput" placeholder="Пароль" autocomplete="current-password">
+    <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Войти</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardScreen" class="hidden">
+  <h1 class="page-title">Панель пациентов</h1>
+  <div class="dashboard">
+    <div class="dashboard-header">
+      <div class="stats" id="patientsCount"></div>
+      <button class="btn-logout" onclick="doLogout()">Выйти</button>
+    </div>
+    <div id="patientsList"></div>
+  </div>
+</div>
+
+<script>
+const API = window.location.origin;
+let token = localStorage.getItem('dashboard_token') || '';
+
+function metricColor(v) {
+  if (v == null || isNaN(v)) return 'yellow';
+  v = parseFloat(v);
+  if (v >= 8) return 'green';
+  if (v >= 5) return 'yellow';
+  return 'red';
+}
+
+function fmt(v) { return (v == null || isNaN(v)) ? '\u2014' : parseFloat(v).toFixed(1); }
+
+function fmtDate(iso) {
+  if (!iso) return '\u2014';
+  try { return new Date(iso).toLocaleDateString('ru-RU', {day:'numeric',month:'long',year:'numeric'}); }
+  catch(e) { return iso; }
+}
+
+function initials(name) {
+  if (!name) return '?';
+  const p = name.trim().split(/\s+/);
+  return p.length >= 2 ? (p[0][0]+p[1][0]).toUpperCase() : p[0].substring(0,2).toUpperCase();
+}
+
+function apiFetch(path, opts={}) {
+  const h = {'Content-Type':'application/json', ...(opts.headers||{})};
+  if (token) h['Authorization'] = 'Bearer ' + token;
+  return fetch(API + path, {...opts, headers: h});
+}
+
+// ── Login ──
+
+function doLogin() {
+  const pw = document.getElementById('passwordInput').value.trim();
+  const err = document.getElementById('loginError');
+  err.textContent = '';
+  if (!pw) { err.textContent = 'Введите пароль'; return; }
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Вход...';
+
+  apiFetch('/api/dashboard/login', {method:'POST', body: JSON.stringify({password: pw})})
+  .then(r => r.json().then(d => ({ok: r.ok, data: d})))
+  .then(({ok, data}) => {
+    if (ok && data.token) {
+      token = data.token;
+      localStorage.setItem('dashboard_token', token);
+      showDashboard();
+    } else {
+      err.textContent = data.detail || 'Неверный пароль';
+    }
+  })
+  .catch(() => { err.textContent = 'Ошибка соединения'; })
+  .finally(() => { btn.disabled = false; btn.textContent = 'Войти'; });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('loginScreen').classList.contains('hidden')) doLogin();
+});
+
+function doLogout() {
+  token = '';
+  localStorage.removeItem('dashboard_token');
+  document.getElementById('dashboardScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('passwordInput').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+// ── Dashboard ──
+
+function showDashboard() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('dashboardScreen').classList.remove('hidden');
+  loadPatients();
+}
+
+function loadPatients() {
+  const list = document.getElementById('patientsList');
+  list.innerHTML = '<div class="loading"><div class="spinner"></div><br>Загрузка...</div>';
+
+  apiFetch('/api/dashboard/patients')
+  .then(r => {
+    if (r.status === 401) { doLogout(); return null; }
+    return r.json();
+  })
+  .then(data => {
+    if (!data) return;
+    const patients = data.patients || [];
+    document.getElementById('patientsCount').textContent = 'Пациентов: ' + patients.length;
+
+    if (!patients.length) {
+      list.innerHTML = '<div class="empty-state">Пока нет данных о пациентах</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    patients.forEach((p, i) => list.appendChild(buildCard(p, i)));
+  })
+  .catch(() => { list.innerHTML = '<div class="empty-state">Ошибка загрузки</div>'; });
+}
+
+function buildCard(p, idx) {
+  const card = document.createElement('div');
+  card.className = 'patient-card fade-in';
+  card.style.animationDelay = (idx * 0.05) + 's';
+
+  const metrics = [
+    {label: 'Мотивация', key: 'motivation_avg'},
+    {label: 'Ресурсы', key: 'resource_avg'},
+    {label: 'Потребности', key: 'needs_avg'},
+    {label: 'Энергия', key: 'life_energy'},
+    {label: 'Потенциал', key: 'action_potential'},
+    {label: 'СКУ', key: 'sociocultural_level'},
+  ];
+
+  const badges = metrics.map(m => {
+    const v = p[m.key];
+    return `<span class="metric-badge ${metricColor(v)}"><span>${m.label}</span> <span class="val">${fmt(v)}</span></span>`;
+  }).join('');
+
+  const name = p.display_name || p.username || 'Пациент #' + (idx+1);
+  const pos = [p.position, p.company].filter(Boolean).join(', ');
+
+  card.innerHTML = `
+    <div class="patient-header" onclick="toggleCard(this)">
+      <div class="patient-avatar">${initials(name)}</div>
+      <div class="patient-info">
+        <div class="patient-name">${name}</div>
+        <div class="patient-meta">${pos || 'Последняя оценка: ' + fmtDate(p.last_assessment_date)}</div>
+      </div>
+      <div class="expand-icon">&#9660;</div>
+    </div>
+    <div class="metrics-row">${badges}</div>
+    <div class="patient-detail">
+      <div class="detail-inner" id="detail-${p.id}">
+        <div class="detail-actions">
+          <a class="btn btn-secondary" href="${API}/api/dashboard/patients/${p.id}/pdf" target="_blank">Скачать PDF</a>
+          <button class="btn btn-secondary" onclick="event.stopPropagation(); loadDetail(${p.id})">Подробная история</button>
+        </div>
+        <div id="history-${p.id}"></div>
+      </div>
+    </div>`;
+  return card;
+}
+
+function toggleCard(el) { el.closest('.patient-card').classList.toggle('expanded'); }
+
+function loadDetail(id) {
+  const container = document.getElementById('history-' + id);
+  container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+  apiFetch('/api/dashboard/patients/' + id)
+  .then(r => r.json())
+  .then(data => {
+    let html = '';
+
+    if (data.derived_metrics && data.derived_metrics.length) {
+      const rows = data.derived_metrics.map(dm => `
+        <tr>
+          <td>${fmtDate(dm.date)}</td>
+          <td class="cell-${metricColor(dm.motivation_avg)}">${fmt(dm.motivation_avg)}</td>
+          <td class="cell-${metricColor(dm.resource_avg)}">${fmt(dm.resource_avg)}</td>
+          <td class="cell-${metricColor(dm.needs_avg)}">${fmt(dm.needs_avg)}</td>
+          <td class="cell-${metricColor(dm.life_energy)}">${fmt(dm.life_energy)}</td>
+          <td class="cell-${metricColor(dm.action_potential)}">${fmt(dm.action_potential)}</td>
+          <td class="cell-${metricColor(dm.sociocultural_level)}">${fmt(dm.sociocultural_level)}</td>
+        </tr>`).join('');
+
+      html += `<div class="history-section"><h4>Производные метрики</h4>
+        <div class="table-wrap"><table class="history-table">
+        <thead><tr><th>Дата</th><th>Мотив.</th><th>Ресурс</th><th>Потр.</th><th>Энерг.</th><th>Потенц.</th><th>СКУ</th></tr></thead>
+        <tbody>${rows}</tbody></table></div></div>`;
+    }
+
+    if (data.assessments && data.assessments.length) {
+      const rows = data.assessments.map(a => `
+        <tr>
+          <td>${fmtDate(a.date)}</td>
+          <td class="cell-${metricColor(a.family_origin)}">${fmt(a.family_origin)}</td>
+          <td class="cell-${metricColor(a.family_own)}">${fmt(a.family_own)}</td>
+          <td class="cell-${metricColor(a.life_fullness)}">${fmt(a.life_fullness)}</td>
+          <td class="cell-${metricColor(a.realization)}">${fmt(a.realization)}</td>
+          <td class="cell-${metricColor(a.integration)}">${fmt(a.integration)}</td>
+          <td class="cell-${metricColor(a.average)}">${fmt(a.average)}</td>
+        </tr>`).join('');
+
+      html += `<div class="history-section"><h4>Ресурсное состояние</h4>
+        <div class="table-wrap"><table class="history-table">
+        <thead><tr><th>Дата</th><th>Род. семья</th><th>Своя семья</th><th>Полнота</th><th>Реализ.</th><th>Интегр.</th><th>Средн.</th></tr></thead>
+        <tbody>${rows}</tbody></table></div></div>`;
+    }
+
+    if (data.needs_assessments && data.needs_assessments.length) {
+      const rows = data.needs_assessments.map(n => `
+        <tr>
+          <td>${fmtDate(n.date)}</td>
+          <td class="cell-${metricColor(n.mental)}">${fmt(n.mental)}</td>
+          <td class="cell-${metricColor(n.social)}">${fmt(n.social)}</td>
+          <td class="cell-${metricColor(n.emotional)}">${fmt(n.emotional)}</td>
+          <td class="cell-${metricColor(n.spiritual)}">${fmt(n.spiritual)}</td>
+          <td class="cell-${metricColor(n.physical)}">${fmt(n.physical)}</td>
+          <td class="cell-${metricColor(n.average)}">${fmt(n.average)}</td>
+        </tr>`).join('');
+
+      html += `<div class="history-section"><h4>Потребностная сфера</h4>
+        <div class="table-wrap"><table class="history-table">
+        <thead><tr><th>Дата</th><th>Ментал.</th><th>Соц.</th><th>Эмоц.</th><th>Духовн.</th><th>Физич.</th><th>Средн.</th></tr></thead>
+        <tbody>${rows}</tbody></table></div></div>`;
+    }
+
+    if (!html) html = '<div style="color:var(--text-muted);font-size:13px;font-style:italic;padding:12px 0;">Нет данных по оценкам</div>';
+    container.innerHTML = html;
+  })
+  .catch(() => { container.innerHTML = '<div style="color:var(--red);font-size:13px;">Ошибка загрузки</div>'; });
+}
+
+// ── Init ──
+(function() {
+  if (token) {
+    apiFetch('/api/dashboard/patients')
+    .then(r => { if (r.ok) showDashboard(); else doLogout(); })
+    .catch(() => doLogout());
+  }
+})();
+</script>
+</body>
+</html>

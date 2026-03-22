@@ -29,6 +29,7 @@ DATABASE_URL = _raw_db_url
 CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
+DASHBOARD_PASSWORD = os.getenv("DASHBOARD_PASSWORD", "aterley2024")
 
 
 def is_chairman(username: str | None) -> bool:
