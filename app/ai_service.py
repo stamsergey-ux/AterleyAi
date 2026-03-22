@@ -103,7 +103,8 @@ SYSTEM_PROMPT = """Ты — Aterley, профессиональный AI-пси�
 """
 
 
-async def chat_response(user_message: str, history: list[dict] | None = None) -> str:
+async def chat_response(user_message: str, history: list[dict] | None = None,
+                        user_name: str | None = None) -> str:
     """Generate AI psychologist response."""
     client = _get_claude()
     if not client:
@@ -123,6 +124,8 @@ async def chat_response(user_message: str, history: list[dict] | None = None) ->
     )
 
     system = SYSTEM_PROMPT
+    if user_name:
+        system += f"\n\n[Пользователя зовут {user_name}. Обращайся к нему по имени, естественно и тепло.]"
     if not assessment_done and user_msg_count >= 3:
         system += (
             f"\n\n[СИСТЕМНАЯ ПОДСКАЗКА: Это уже {user_msg_count}-е сообщение пользователя. "

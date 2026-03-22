@@ -28,6 +28,7 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # In-memory sessions
 _sessions: dict[str, list[dict]] = {}
+_session_names: dict[str, str] = {}  # session_id -> user name
 
 
 class ChatRequest(BaseModel):
@@ -79,7 +80,8 @@ async def api_chat(req: ChatRequest):
         _sessions[sid] = []
 
     history = _sessions[sid]
-    reply = await chat_response(req.message, history)
+    user_name = _session_names.get(sid)
+    reply = await chat_response(req.message, history, user_name=user_name)
 
     trigger = False
     if "[НАЧАТЬ_ОЦЕНКУ]" in reply:
@@ -373,6 +375,7 @@ async def web_register(req: WebRegisterRequest):
 
     sid = str(uuid.uuid4())
     _sessions[sid] = []
+    _session_names[sid] = req.name
     return {"member_id": member.id, "session_id": sid}
 
 
